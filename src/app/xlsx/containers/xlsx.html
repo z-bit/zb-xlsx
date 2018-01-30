@@ -1,0 +1,18 @@
+<input type="file" (change)="onFileChange($event)" multiple="false" id="input"/>
+<hr>
+<mat-tab-group>
+  <mat-tab *ngFor="let ex of excel" label="{{ex.name}}">
+    <table class="sjs-table">
+      <tr *ngFor="let row of ex.data">
+        <td *ngFor="let val of row">
+          {{val}}
+        </td>
+      </tr>
+    </table>
+  </mat-tab>
+</mat-tab-group>
+
+
+<hr>
+<button (click)="schreiben()">Export!</button>
+<script src="../../../../node_modules/xlsx-style/dist/cpexcel.js"></script>

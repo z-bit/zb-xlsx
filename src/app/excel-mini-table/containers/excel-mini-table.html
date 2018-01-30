@@ -1,0 +1,25 @@
+<div class="file_input_div">
+  <div class="file_input">
+    <label class="mat-raised-button" matTooltip="Datei auswählen">
+      <img src="assets/excel_round_202.png">
+      <input id="file_input_file" class="none" type="file" (change)="onFileChange($event)">
+    </label>
+  </div>
+  <mat-form-field class="example-full-width">
+    <input matInput placeholder="Excel-Tabelle" disabled value="{{fileName}}">
+    <mat-hint> {{ inputHint }} </mat-hint>
+  </mat-form-field>
+</div>
+<br>
+<div class="table_div">
+  <h4>{{wsName}}</h4>
+  <mat-table [dataSource]="dataSource" matSort>
+    <ng-container *ngFor="let header of headers" matColumnDef="{{ header }}">
+      <mat-header-cell *matHeaderCellDef mat-sort-header>{{ header }}</mat-header-cell>
+      <mat-cell *matCellDef="let data">{{ data[header] }}</mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="headers"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: headers;"></mat-row>
+  </mat-table>
+</div>

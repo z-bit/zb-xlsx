@@ -1,0 +1,38 @@
+.file_input_div {
+  margin: auto;
+  width: 350px;
+  height: 40px;
+}
+
+.file_input {
+  float: left;
+}
+
+img {
+  width: 40px;
+  height: 40px;
+}
+
+img:hover {
+  cursor: pointer;
+}
+
+.example-full-width {
+  width: 250px;
+  height: 20px;
+
+  margin-left: 10px;
+  float: left;
+}
+
+.none {
+  display: none;
+}
+
+.table_div {
+  float: left;
+}
+
+mat-table {
+  width: 1900px;
+}

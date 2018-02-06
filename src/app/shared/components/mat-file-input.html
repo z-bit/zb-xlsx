@@ -1,0 +1,13 @@
+<div class="file_input_div">
+    <div class="file_input">
+        <label class="mat-raised-button" matTooltip="Datei auswählen">
+            <img src="{{ icon }}">
+            <input id="file_input_file" class="none" type="file" (change)="onChange($event)">
+        </label>
+    </div>
+    <mat-form-field class="example-full-width">
+        <input matInput placeholder="Excel-Tabelle" disabled value="{{fileName}}">
+        <mat-hint> {{ hint }} </mat-hint>
+    </mat-form-field>
+</div>
+<br>

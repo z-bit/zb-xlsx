@@ -7,13 +7,11 @@ import * as XLSX from 'xlsx';
 
 import { DataTransferService } from '../services/data-transfer.service';
 
-
 type AOA = any[][];
 interface WS  {
   name: string;
   data: AOA;
 }
-
 class TableDataSource extends DataSource<any> {
 
   constructor(private dataTransferService: DataTransferService) {
@@ -26,16 +24,24 @@ class TableDataSource extends DataSource<any> {
 }
 
 @Component({
-  selector: 'app-excel-flex-table',
-  templateUrl: 'excel-flex-table.html',
-  styleUrls: ['excel-flex-table.scss'],
+  selector: 'app-excel-ag-grid',
+  templateUrl: './excel-ag-grid.html',
+  styleUrls: ['./excel-ag-grid.scss']
 })
-export class ExcelFlexTableContainerComponent {
+export class ExcelAgGridContainerComponent {
+  icon = 'assets/excel_round_202.png';
+  hint = 'Zur Auswahl bitte auf Excel-Symbol klicken.';
+  today: string;
 
-  constructor(private dataTranferService: DataTransferService) {}
+  rowData = [
+    {make: 'Toyota', model: 'Celica', price: 35000, status: 'zu buchen'},
+    {make: 'Ford', model: 'Mondeo', price: 32000, status: `OK - gebucht ${this.today}`},
+    {make: 'Porsche', model: 'Boxter', price: 72000, status: 'Fehler: Preis zu hoch'},
+    {make: 'Trabant', model: 'P601', price: 8000, status: `in Arbeit`},
+  ];
 
-  inputHint = 'Zur Auswahl bitte auf Excel-Symbol klicken.';
   fileName = '';
+  fileInputEvent$: Observable<any>;
   wopts: XLSX.WritingOptions = { bookType: 'xlsx', type: 'array' };
   excel: WS[] = [];
   wsName: string[] = [];
@@ -51,9 +57,28 @@ export class ExcelFlexTableContainerComponent {
     this.reserveHeader = a.join(' ');
   }
 
-  onFileChange(evt: any) {
-    this.inputHint = '';
-    const target: DataTransfer = <DataTransfer>(evt.target);
+
+
+  constructor() {
+    const heute = new Date();
+    let dd = heute.getDate() + '';
+    let mm = (heute.getMonth() + 1) + ''; // January is 0
+    let yy = heute.getFullYear() + ''; // make it a string
+    if (dd.length === 1) { dd = '0' + dd; }
+    if (mm.length === 1) { mm = '0' + mm; }
+    yy = yy.substr(2);
+    this.today = dd + '.' + mm + '.' + yy;
+
+  }
+
+
+onChange(event) {
+    console.log('changed: ' + event.target.files[0].name);
+    console.log('changed: ', event);
+    this.fileInputEvent$ = Observable.of(event);
+    console.log('changed: ', this.fileInputEvent$);
+    /*
+    const target: DataTransfer = <DataTransfer>(event.target);
 
     if (target.files.length !== 1) {
       throw new Error('Cannot use multiple files');
@@ -116,6 +141,6 @@ export class ExcelFlexTableContainerComponent {
       }
     };
     reader.readAsBinaryString(target.files[0]);
+    */
   }
-
 }

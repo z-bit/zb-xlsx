@@ -25,6 +25,7 @@ export class RenderComponent {
   private css: string;
 
   agInit(params: any) {
+    if (!params) { params.value = ''; }
     switch (params.value.substr(0, 2)) {
       case 'in': this.css = 'work'; break;
       case 'Fe': this.css = 'bad'; break;

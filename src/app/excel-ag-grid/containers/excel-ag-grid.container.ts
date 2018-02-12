@@ -31,6 +31,7 @@ class TableDataSource extends DataSource<any> {
 export class ExcelAgGridContainerComponent {
   icon = 'assets/excel_round_202.png';
   hint = 'Zur Auswahl bitte auf Excel-Symbol klicken.';
+  enabled = true;
   today: string;
 
   rowData = [

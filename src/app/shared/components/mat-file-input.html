@@ -1,8 +1,8 @@
 <div class="file_input_div">
     <div class="file_input">
-        <label class="mat-raised-button" matTooltip="Datei auswählen">
+        <label class="mat-raised-button" matTooltip="{{tooltip}}">
             <img src="{{ icon }}">
-            <input id="file_input_file" class="none" type="file" (change)="onChange($event)">
+            <input id="file_input_file" class="none" type="file" (change)="onChange($event)" [attr.disabled]="enabled ? null : ''">
         </label>
     </div>
     <mat-form-field class="example-full-width">

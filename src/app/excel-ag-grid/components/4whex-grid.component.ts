@@ -19,26 +19,32 @@ interface WS  {
     data: AOA;
 }
 
+interface WhexData {
+  id: string;
+  sheet: string;
+  row: string;
+  fa: string;
+  fi: string;
+  kom: string;
+  sa: string;
+  text: string;
+  eknr: string;
+  ekdat: string;
+  budat: string;
+  ekwert: string;
+  ausstattung: string;
+  eink: string;
+  lief: string;
+  kart: string;
+  kont: string;
+  stcd: string;
+  stproz: string;
+  care: string;
+}
+
 @Component({
   selector: 'app-whex-grid',
-  template: `
-    <h3>4. WHex Grid</h3>
-
-    <mat-card>
-      <mat-card-title>Datei: {{ fileName }}</mat-card-title>
-      <mat-card-content>
-        <ag-grid-angular style="width: 1600px; height: 600px; font-size: x-small"
-                         class="ag-theme-fresh"
-                         [gridOptions]="gridOptions"
-                         (gridReady)="onGridReady($event)"
-        ></ag-grid-angular>
-      </mat-card-content>
-      <mat-card-actions>
-        <a mat-raised-button (click)="schreiben()">Schreiben</a>
-        <a mat-raised-button (click)="export()">Create new</a>
-      </mat-card-actions>
-    </mat-card>
-  `,
+  templateUrl: './4whex-grid.html',
   styles: [`
     .right { float: right}
   `],
@@ -51,34 +57,36 @@ export class WhexGridComponent implements OnChanges {
   excelData: WS[] = [];
   data: AOA = [ [1, 2], [3, 4] ]; // for tests creating an Excel file
   sheetCheck = '';
+  zeileToCange = 0;
 
   columnDefs = [
-    {headerName: 'Id',        field: 'id',    width: 110, cellStyle: '{text-align: right}', },          // each row
-    {headerName: 'Tab',       field: 'sheet', width: 150 }, // each row
-    {headerName: 'Zl',        field: 'row',   width: 110, },      // each row
-    {headerName: 'Fa',        field: 'fa',    width: 110, },          // each row
-    {headerName: 'Fi',        field: 'fi',    width: 110, },          // each row
-    {headerName: 'Komm',      field: 'kom',   width: 150},           // col =  0
-    {headerName: 'SA',        field: 'sa',    width: 110, },               // col =  1
-    {headerName: 'Text',      field: 'text',          width: 150, },                // col =  2
-    {headerName: 'EK-Nr',     field: 'eknr',          width: 150, },               // col =  3
-    {headerName: 'EK-Datum',  field: 'ekdat',         width: 150, },           // col =  4
-    {headerName: 'Bu-Datum',  field: 'budat',         width: 120, },        // col =  5
-    {headerName: 'EK-Wert',   field: 'ekwert',        width: 120, },      // col =  6
+    {headerName: 'Id',        field: 'id',            width: 110, cellStyle: '{text-align: right}', }, // each row
+    {headerName: 'Tab',       field: 'sheet',         width: 150 },   // each row
+    {headerName: 'Zl',        field: 'row',           width: 110, },  // each row
+    {headerName: 'Fa',        field: 'fa',            width: 110, },  // each row
+    {headerName: 'Fi',        field: 'fi',            width: 110, },  // each row
+    {headerName: 'Komm',      field: 'kom',           width: 150},    // col =  0
+    {headerName: 'SA',        field: 'sa',            width: 110, },  // col =  1
+    {headerName: 'Text',      field: 'text',          width: 150, },  // col =  2
+    {headerName: 'EK-Nr',     field: 'eknr',          width: 150, },  // col =  3
+    {headerName: 'EK-Datum',  field: 'ekdat',         width: 150, },  // col =  4
+    {headerName: 'Bu-Datum',  field: 'budat',         width: 150, },  // col =  5
+    {headerName: 'EK-Wert',   field: 'ekwert',        width: 120, },  // col =  6
     {headerName: 'Ausst.',    field: 'ausstattung',   width: 120, },  // col =  7
-    {headerName: 'Eink.',     field: 'eink',          width: 120, },          // col =  8
-    {headerName: 'Lief.',     field: 'lief',          width: 120, },           // col =  9
-    {headerName: 'K-Art',     field: 'kart',          width: 120, },               // col = 10
-    {headerName: 'Kont.',     field: 'kont',          width: 120, },          // col = 11
-    {headerName: 'StCD',      field: 'stcd',          width: 120, },                // col = 12
-    {headerName: 'StPr',      field: 'stproz',        width: 120, },              // col = 13
-    {headerName: 'Care',      field: 'care',          width: 400, cellRendererFramework: RenderComponent, },                // col = 14
+    {headerName: 'Eink.',     field: 'eink',          width: 120, },  // col =  8
+    {headerName: 'Lief.',     field: 'lief',          width: 120, },  // col =  9
+    {headerName: 'K-Art',     field: 'kart',          width: 120, },  // col = 10
+    {headerName: 'Kont.',     field: 'kont',          width: 120, },  // col = 11
+    {headerName: 'StCD',      field: 'stcd',          width: 120, },  // col = 12
+    {headerName: 'StPr',      field: 'stproz',        width: 120, },  // col = 13
+    {headerName: 'Care',      field: 'care',          width: 400, cellRendererFramework: RenderComponent, }, // col = 14
   ];
 
   rowData: Object[];
 
   gridOptions = <GridOptions>{
       enableSorting: true,
+      animateRows: true,
       columnDefs: this.columnDefs,
   };
 /*
@@ -160,6 +168,86 @@ export class WhexGridComponent implements OnChanges {
     }
   }
 
+  setDatum(val: string) {
+    // 01.01.2018
+    let datumArray: string[];
+    if (val.indexOf('.') > 0) {
+      datumArray = val.trim().split('.');
+    } else if (val.indexOf('/') > 0) {
+      datumArray = val.trim().split('/');
+    } else {
+      return 'Datumsformat konnte nicht ermittelt werden: ' + val;
+    }
+    let d: string = datumArray[0]; if (d.length === 1) { d = '0' + d; }
+    let m: string = datumArray[1]; if (m.length === 1) { m = '0' + m; }
+    const y: string = datumArray[2];
+    return d + '.' + m + '.' + y;
+  }
+
+  setEuroExcel(val) {
+    // in Excel: 0,00 €, komm rein als : 0.00 €
+    if (val.trim().indexOf(' ') > 0) {
+      // Währung enfernen
+      const arr = val.trim().split(' ');
+      val = arr[0];
+    }
+    if (val.indexOf('.') > -1) {
+      // Punkt zurück in Komma
+      val = val.replace('.', ',');
+    }
+    if (val.indexOf(',') === -1) {
+      // ganze Zahl mit Nachkommastellen auffüllen
+      val = val.trim() + ',00';
+    }
+    if (val.indexOf(',') === 0) {
+      // bei Zahlen die mit Komma beginn die Null davorsetzen
+      val = '0' + val;
+    }
+    return val + ' €';
+  }
+  setEuroSql(val) {
+    if (val.trim().indexOf(' ') > 0) {
+      // Währung enfernen
+      const arr = val.trim().split(' ');
+      val = arr[0];
+    }
+    if (val.indexOf(',') > -1) {
+      // bei Zahlen mit Komma brauchts einen Punkt
+      val = val.replace(',', '.');
+    }
+    return val;
+  }
+
+  setProzExcel(val) {
+    if (!val) {
+      return '0,00';
+    }
+    if (val.indexOf('.') > -1) {
+      // Punkt zurück in Komma
+      val = val.replace('.', ',');
+    }
+    if (val.indexOf(',') === -1) {
+      // ganze Zahl mit Nachkommastellen auffüllen
+      val = val.trim() + ',00';
+    }
+    if (val.indexOf(',') === 0) {
+      // bei Zahlen die mit Komma beginn die Null davorsetzen
+      val = '0' + val;
+    }
+    return val;
+  }
+
+  setProzSql(val) {
+    if (!val) {
+      return '0.00';
+    }
+    if (val.indexOf(',') > -1) {
+      // bei Zahlen mit Komma brauchts einen Punkt
+      val = val.replace(',', '.');
+    }
+    return val;
+  }
+
   readExcelWhexFile(event) {
     const reader: FileReader = new FileReader();
     reader.onload = (e: any) => {
@@ -202,29 +290,40 @@ export class WhexGridComponent implements OnChanges {
 
         // for each row
         for (let row = 2; row < data.length; row++) {      // why row <= data.length (2)
+          // zeilenindex (row) = excelZeile -1; 2 Überschriften (0, 1) ausgelassen
           const zeile = data[row];
           if (zeile[0]) {
+            data[row][4] = this.setDatum(zeile[4]);
+            data[row][5] = this.setDatum(zeile[5]);
+            data[row][6] = this.setEuroExcel(zeile[6]);
+            data[row][13] = this.setProzExcel(zeile[13]);
+/*
+            console.log('ekdat', zeile[4] + ' => ' + this.setDatum(zeile[4]));
+            console.log('budat', zeile[5] + ' => ' + this.setDatum(zeile[4]));
+            console.log('ekwert', zeile[6] + ' , Excel: ' + this.setEuroExcel(zeile[6]) + ' , Sql: ' + this.setEuroSql(zeile[6]));
+            console.log('stproz', zeile[13] + ' , Excel: ' + this.setProzExcel(zeile[13]) + ' , Sql: ' + this.setProzSql(zeile[13]));
+*/
             const rowDataTmp = {
+              ['id']: this.id++,
+              ['sheet']: name,
+              ['row']: row,
               ['fa']: fa,
               ['fi']: fi,
               ['kom']: zeile[0],
               ['sa']: zeile[1],
               ['text']: zeile[2],
               ['eknr']: zeile[3],
-              ['ekdat']: zeile[4],
-              ['budat']: zeile[5],
-              ['ekwert']: zeile[6],
+              ['ekdat']: this.setDatum(zeile[4]),
+              ['budat']: this.setDatum(zeile[5]),
+              ['ekwert']: this.setEuroSql(zeile[6]),
               ['ausstattung']: zeile[7],
               ['eink']: zeile[8],
               ['lief']: zeile[9],
               ['kart']: zeile[10],
               ['kont']: zeile[11],
               ['stcd']: zeile[12],
-              ['stproz']: zeile[13],
+              ['stproz']: this.setProzSql(zeile[13]),
               ['care']: zeile[14] ? zeile[14] : 'zu buchen',
-              ['id']: this.id++,
-              ['sheet']: name,
-              ['row']: row,
             };
             this.rowData.push(rowDataTmp);
           }
@@ -242,6 +341,7 @@ export class WhexGridComponent implements OnChanges {
   }
 
     export(): void {
+    // creates a new workbook
         this.data[0] = [];
         this.data[0][0] = 99.01;
         console.log('data[0][0]: ', this.data[0][0]);
@@ -258,7 +358,6 @@ export class WhexGridComponent implements OnChanges {
     }
 
     schreiben(): void {
-    alert('schreiben');
         const wb: XLSX.WorkBook = XLSX.utils.book_new();
         console.log('wb: ', wb);
         for (let i = 0; i < this.excelData.length; i++) {
@@ -268,5 +367,45 @@ export class WhexGridComponent implements OnChanges {
         }
         const wbout: ArrayBuffer = XLSX.write(wb, this.wopts);
         saveAs(new Blob([wbout], { type: 'application/octet-stream' }), this.fileName);
+    }
+
+    change_zeile(i): void {
+      this.setCare('WH2001', i, '');
+      /*
+      // put 'Fehler ' in front of it
+      // id =126, sheet = WH20101, zeile= 128
+      const sheet = this.excelData.find( obj =>  obj.name === 'WH2001');
+      console.log('sheet: ', sheet);
+      console.log(i);
+      const zeile = sheet.data[i-1];
+      console.log(`zeile ${i}=>${i-1}: `, zeile);
+      const care = zeile[14];
+      console.log('care: ', care);
+      console.log('care: ', this.getCare('WH2001', i))
+      // console.log(this.excelData['WH2001'][126]);
+      */
+    }
+
+    getCare(tabelle, zeile): string[] {
+      /**
+       * const sheet = excelData.find( obj =>  obj.name === tabelle);
+       * const zeile = sheet.name[zeile]; // zeile - 1
+       * const care = zeile[14]               // 15. Spalte (O)
+       */
+      return this.excelData.find( obj =>  obj.name === tabelle).data[zeile][14];
+    }
+
+    setCare(tabelle, zeile, wert): void {
+      if (wert === '') {
+        wert = 'Fehler: ' + this.getCare(tabelle, zeile);
+      }
+      // set Excel data
+      this.excelData.find( obj =>  obj.name === tabelle).data[zeile][14] = wert;
+      // set AgGrid data
+      this.rowData.find( (obj: WhexData) => obj.sheet === tabelle && obj.row === zeile)['care'] = wert;
+      this.gridOptions.api.setRowData(this.rowData);
+      // sort agGrid data
+
+      this.gridOptions.api.setSortModel([{ colId: 'care', sort: 'asc' }]);
     }
 }

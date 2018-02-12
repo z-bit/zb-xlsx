@@ -1,0 +1,18 @@
+<h3>4. WHex Grid</h3>
+
+<mat-card>
+  <mat-card-title>Datei: {{ fileName }}</mat-card-title>
+  <mat-card-content>
+    <ag-grid-angular style="width: 1600px; height: 600px; font-size: x-small"
+                     class="ag-theme-fresh"
+                     [gridOptions]="gridOptions"
+                     (gridReady)="onGridReady($event)"
+    ></ag-grid-angular>
+  </mat-card-content>
+  <mat-card-actions>
+    <a mat-raised-button (click)="schreiben()">Schreiben</a>
+    <a mat-raised-button (click)="export()">Create new</a>
+    <input type="number" #zeile>
+    <a mat-raised-button (click)="change_zeile(zeile.value)">Change Zeile</a>
+  </mat-card-actions>
+</mat-card>
